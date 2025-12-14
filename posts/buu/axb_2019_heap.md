@@ -26,3 +26,8 @@ if ( size <= 0x80 )
 
 先泄漏地址
 
+0x3c67a8 <--free hook偏移
+
+修改指向分配位置的指针（大概是这个意思吗在严肃阅读wp[wp](https://www.cnblogs.com/ZedsM4gicC4bin/articles/18689569)
+其实没太搞明白那个堆快合并不合并啥的。。
+
