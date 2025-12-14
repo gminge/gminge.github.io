@@ -11,5 +11,12 @@
   printf("Hello, ");
   printf(format);
   ```
+好像没有show
+show被ban了
+key是什么
 
+size大小有限制
+```
+if ( size <= 0x80 )
+```
 
