@@ -9,3 +9,5 @@
 [heap_heng_shui](https://gminge.github.io/knowledge_point/heap/heap_feng_shui)
 
 [fast_bin](https://gminge.github.io/knowledge_point/heap/fast_bin)
+
+[house_of_sth](https://gminge.github.io/knowledge_point/heap/house_of_sth/readme.md)
