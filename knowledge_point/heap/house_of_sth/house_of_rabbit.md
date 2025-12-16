@@ -6,9 +6,9 @@
 
 这种利用方式产生于2017年
 
-本质的原理是可以通过修改fastbin的size或是fd
+**本质的原理是可以通过修改fastbin的size或是fd**
 
-触发malloc_consolidate
+**触发malloc_consolidate**
 
 使得fastbin被link到其他的bins中
 
@@ -28,3 +28,6 @@
 
 *你们pwn手起些名字怪抽象的*
 
+### malloc_consolidate函数
+
+函数感动吗，我给你建了一个小标题，感动吗函数？
