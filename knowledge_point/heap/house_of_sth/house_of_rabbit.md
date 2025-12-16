@@ -12,8 +12,19 @@
 
 使得fastbin被link到其他的bins中
 
+*house_of_froce*
+
 目的似乎是申请一个很大的空间，溢出，申请一圈后申请到最顶上的chunk的位置
 
 然后就能修改该chunk的fd和bk
 
 然后就能拿到一个任意地址写（？）
+
+以上好像不是rabbit是froce,理解错了
+
+*fastbin dup是什么。*
+
+*怎么突然出现专业术语。*
+
+*你们pwn手起些名字怪抽象的*
+
