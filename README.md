@@ -10,4 +10,4 @@
 
 [fast_bin](https://gminge.github.io/knowledge_point/heap/fast_bin)
 
-[house_of_sth](https://gminge.github.io/knowledge_point/heap/house_of_sth/readme)
+[house_of_sth](https://gminge.github.io/knowledge_point/heap/house_of_sth/read)
