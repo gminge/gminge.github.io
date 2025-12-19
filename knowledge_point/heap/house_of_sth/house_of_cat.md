@@ -6,4 +6,8 @@
 
 ## 文章阅读及笔记
 
+[文章一](https://xz.aliyun.com/news/12462)
 
+怎么需要前置知识
+
+[house_od_emma](https://gminge.github.io/knowledge_point/heap/house_of_sth/house_of_emma)
