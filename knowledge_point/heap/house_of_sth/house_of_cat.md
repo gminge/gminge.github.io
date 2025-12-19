@@ -10,4 +10,4 @@
 
 怎么需要前置知识
 
-[house_od_emma](https://gminge.github.io/knowledge_point/heap/house_of_sth/house_of_emma)
+[house_of_emma](https://gminge.github.io/knowledge_point/heap/house_of_sth/house_of_emma)
