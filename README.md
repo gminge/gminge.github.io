@@ -8,8 +8,14 @@
 
 ## 知识点
 
-[heap_heng_shui](https://gminge.github.io/knowledge_point/heap/heap_feng_shui)
+[heap_feng_shui](https://gminge.github.io/knowledge_point/heap/heap_feng_shui)
 
 [fast_bin](https://gminge.github.io/knowledge_point/heap/fast_bin)
 
 [house_of_sth](https://gminge.github.io/knowledge_point/heap/house_of_sth/read)
+
+[vtable](https://gminge.github.io/knowledge_point/heap/vtable)
+
+## 源码阅读
+
+[glibc2.34](https://gminge.github.io/yuan_ma_yue_du/glibc2.34)
