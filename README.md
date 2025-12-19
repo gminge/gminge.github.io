@@ -3,6 +3,7 @@
 ## 题目
 
 [buu_axb_2019_heap](https://gminge.github.io/posts/buu/axb_2019_heap)
+[neuq](https://gminge.github.io/neuq/readme)
 
 ## 知识点
 
