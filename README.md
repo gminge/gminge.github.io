@@ -4,7 +4,7 @@
 
 [buu_axb_2019_heap](https://gminge.github.io/posts/buu/axb_2019_heap)
 
-[neuq](https://gminge.github.io/neuq/readme)
+[neuq](https://gminge.github.io/neuq/neuq)
 
 ## 知识点
 
