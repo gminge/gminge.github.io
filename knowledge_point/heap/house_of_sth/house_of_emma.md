@@ -11,3 +11,8 @@
 
 在某处写一个可控地址直接 Getshell（借助于 IO_FILE）*怎么还有io的事。好烦啊这些名字起的稀奇古怪就是很恐怖*
 
+vtable 的检测中对具体位置的检测还是比较宽松的，这使得我们可以在一定的范围内对 vtable 表的起始位置进行偏移
+
+[vtable](https://gminge.github.io/knowledge_point/heap/vtable)
+
+
