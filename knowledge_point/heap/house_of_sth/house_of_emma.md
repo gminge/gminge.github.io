@@ -1,4 +1,9 @@
 > 相关glibc版本：2.34+
+> 
+> 前提条件：
+> 1.可以任意写一个可控地址（LargeBin Attack、Tcache Stashing Unlink Attack...）
+> 2.可以触发 IO 流（FSOP、House OF Kiwi）
+> 
 
 # 文章阅读及笔记
 
