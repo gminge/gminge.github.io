@@ -11,10 +11,32 @@
 
 在某处写一个可控地址直接 Getshell（借助于 IO_FILE）*怎么还有io的事。好烦啊这些名字起的稀奇古怪就是很恐怖*
 
-存在一个[_IO_cookie_jumps]()
+存在一个[_IO_cookie_jumps](https://gminge.github.io/yuan_ma_yue_du/glibc2.34)
 
 vtable 的检测中对具体位置的检测还是比较宽松的，这使得我们可以在一定的范围内对 vtable 表的起始位置进行偏移
 
 [vtable](https://gminge.github.io/knowledge_point/heap/vtable)
 
+这几个函数内存在任意函数指针调用
 
+且函数指针来源于_IO_cookie_file 结构体
+
+这个结构体是 _IO_FILE_plus 的扩展
+
+如果我们可以控制 IO 的内容
+
+大概率这部分的数据也是可控的
+
+并且其的第一个参数也是来源于这个结构
+
+所以我们可以把其当做一个类似于 __free_hook 的 Hook 来利用。
+
+在上面代码中函数指针调用前所执行的 PTR_DEMANGLE （指针保护）选项是默认开启的
+
+这意味着我们需要解决指针加密的问题
+
+通过调试可以得知，这个值存在于 TLS 段上，将其 ROR 移位 0x11 后再与指针进行异或
+
+*是一个指针check吗*
+
+*篡改异或是啥意思*
