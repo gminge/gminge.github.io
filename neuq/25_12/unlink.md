@@ -42,10 +42,53 @@ PCI 标准中的三个基本组件：
 
 题目本身通常以一个 QEMU 模拟设备的形式进行呈现
 
+#### [文章三（unlink）](https://ctf-wiki.org/pwn/linux/user-mode/heap/ptmalloc2/unlink/)
+
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+
+我看不懂（垂头丧气）
+
+但是这个作者的文章看起来还满齐全的
+
+**利用思路 ¶**
+
+**条件 ¶**
+
+    UAF ，可修改 free 状态下 smallbin 或是 unsorted bin 的 fd 和 bk 指针
+    
+    已知位置存在一个指针指向可进行 UAF 的 chunk
+
+**效果 ¶**
+
+使得已指向 UAF chunk 的指针 ptr 变为 ptr - 0x18
+
+**思路 ¶**
+
+设指向可 UAF chunk 的指针的地址为 ptr
+
+    修改 fd 为 ptr - 0x18
+    修改 bk 为 ptr - 0x10
+    触发 unlink
+
+ptr 处的指针会变为 ptr - 0x18。
+
 ### 草稿
 
 好烦啊为啥签到题的ida那么丑，看到这道题的ida之后觉得签到题的ida愈发丑陋了
 
 发现了malloc_hook，这个题是2.23,malloc_hook和free_hook还没有删
 
-清空了指针
+清空了大小但是没有清空指针
+
+啥叫伪造一个prev chunk啊
+
+有点完蛋
+
+**free() 会对“被 free 的 chunk 自己”做 unlink**
+
+啥意思
+
+什么讲过。感觉是有点像讲过的题目的但是讲的时候肯定没说是unlink（吧
+
+
+
