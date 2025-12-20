@@ -14,11 +14,11 @@
 >
 > libc版本：2.23
 >
-> 题型：qemu逃逸（真的吗我怎么感觉不像啊这啥啊不像啊）（感觉像一个很普通的堆题，甚至是2.23版本）（是unlink吗毕竟题目都叫unlink了）
+> 题型：unlink
 
 
 ### 文章阅读及笔记
-#### [文章一（来自题干）](https://arttnba3.cn/2022/08/30/HARDWARE-0X00-PCI_DEVICE/)
+#### [文章一（来自题干）（不是该题知识点）](https://arttnba3.cn/2022/08/30/HARDWARE-0X00-PCI_DEVICE/)
 
 PCI 标准中的三个基本组件：
 
@@ -31,24 +31,28 @@ PCI 标准中的三个基本组件：
 
 *好复杂*
 
-<img width="881" height="580" alt="图片" src="https://github.com/user-attachments/assets/96375467-8596-4088-ac90-74a215fa6f6d" />
 
-*看不懂。就连这个图片是怎么被我复制过来的。都没看懂。*
-
-
-
-
-#### [文章二（qwmu逃逸入门）](https://ctf-wiki.org/pwn/virtualization/qemu/exploitation/intro/)
+#### [文章二（qwmu逃逸入门）（不是该题知识点）](https://ctf-wiki.org/pwn/virtualization/qemu/exploitation/intro/)
 
 题目本身通常以一个 QEMU 模拟设备的形式进行呈现
 
 #### [文章三（unlink）](https://ctf-wiki.org/pwn/linux/user-mode/heap/ptmalloc2/unlink/)
 
-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+**目的是把一个双向链表中的空闲块拿出来**
+所以并不是一定要free合并是吗，只要能把free掉的块拿出来用就行了
 
-我看不懂（垂头丧气）
 
-但是这个作者的文章看起来还满齐全的
+    FD=P->fd = target addr -12    //把 fake chunk 的 fd 指针，伪造成 target_addr - bk_offset
+    BK=P->bk = expect value    //把 bk 直接设成你想“写进去的值”
+    FD->bk = BK，即 *(target addr-12+12)=BK=expect value
+    BK->fd = FD，即 *(expect value +8) = FD = target addr-12
+
+*看不懂啊，这一段老是看不懂*
+
+呃大概是这个意思（？）
+
+    *(target) = value;
+    *(value + 0x10) = target - 0x18;
 
 **利用思路 ¶**
 
@@ -72,6 +76,7 @@ eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 
 ptr 处的指针会变为 ptr - 0x18。
 
+
 ### 草稿
 
 好烦啊为啥签到题的ida那么丑，看到这道题的ida之后觉得签到题的ida愈发丑陋了
@@ -87,8 +92,6 @@ ptr 处的指针会变为 ptr - 0x18。
 **free() 会对“被 free 的 chunk 自己”做 unlink**
 
 啥意思
-
-我受不了这个弱智ai了，每次翻译ida都把我往沟里带
 
 **fastbin<=0x80**
 
