@@ -27,6 +27,26 @@ pthread_tcache_struct
 
 这个利用方法好像之前讲过。就是把地址申请出来。但是一直没写到相关题目就是了。
 
+#### [Heap Exploit v2.31 | 最新堆利用技巧，速速查收](https://zhuanlan.zhihu.com/p/136983333)
+
+当从 fastbin 里取 chunk 时，其余的 chunk 会被依次放入对应的 tcache 中，终止条件时 fastbin 链为空或者 tcache 装满。
+
+做 fastbin 相关利用的时候要先填满对应的 tcache_entry 链。
+
+所以上篇文章才说要填充tcache吗。
+
+这样吗。
+
+tache stash unlink （smallbin解链，有unlink,类似于远古版本的无检测unlink
+
+Tcache stash unlink attack可以实现等价于 unsortedbin 的作用，即向任意地址写入一个不可控的大数字
+
+先放入 2 个 chunk 到 smallbin，6 个 chunk 到对应的 tcache 。之后在不破坏 fd 的情况下将后放入 smallbin 的 chunk 的 bk 设置为目标地址- 0x10 
+
+好多例题。后面再看吧。。。
+
+
+
 
 
 ### 草稿
