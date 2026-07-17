@@ -1,0 +1,436 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Lake_ctf | TATA</title><meta name="author" content="gminge"><meta name="copyright" content="gminge"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="翻看有哪些题写了保存了文件但是没写wp翻到的 qiandao呃我也忘了这道题的原名叫什么了 反正我给这道题的文件夹的命名是签到 qiandao - stackception VM Challenge题目概述stackception-1 是一个基于栈的自定义虚拟机 (VM) 逆向&#x2F;PWN 挑战。题目实现了简单的字节码解释器，并提供一个汇编器 stackception-asm 将汇编代码编译">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lake_ctf">
+<meta property="og:url" content="https://gminge.github.io/2026/07/17/Lake-ctf/index.html">
+<meta property="og:site_name" content="TATA">
+<meta property="og:description" content="翻看有哪些题写了保存了文件但是没写wp翻到的 qiandao呃我也忘了这道题的原名叫什么了 反正我给这道题的文件夹的命名是签到 qiandao - stackception VM Challenge题目概述stackception-1 是一个基于栈的自定义虚拟机 (VM) 逆向&#x2F;PWN 挑战。题目实现了简单的字节码解释器，并提供一个汇编器 stackception-asm 将汇编代码编译">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gminge.github.io/img/head/1.png">
+<meta property="article:published_time" content="2026-07-17T09:24:03.000Z">
+<meta property="article:modified_time" content="2026-07-17T10:13:46.991Z">
+<meta property="article:author" content="gminge">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gminge.github.io/img/head/1.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Lake_ctf",
+  "url": "https://gminge.github.io/2026/07/17/Lake-ctf/",
+  "image": "https://gminge.github.io/img/head/1.png",
+  "datePublished": "2026-07-17T09:24:03.000Z",
+  "dateModified": "2026-07-17T10:13:46.991Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "gminge",
+      "url": "https://gminge.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://gminge.github.io/2026/07/17/Lake-ctf/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Lake_ctf',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><style>#aside-content .card-announcement .item-headline i { animation: none !important; }</style><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/head/1.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">24</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">TATA</span></a><a class="nav-page-title" href="/"><span class="site-name">Lake_ctf</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Lake_ctf</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-07-17T09:24:03.000Z" title="发表于 2026-07-17 17:24:03">2026-07-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-07-17T10:13:46.991Z" title="更新于 2026-07-17 18:13:46">2026-07-17</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>翻看有哪些题写了保存了文件但是没写wp翻到的</p>
+<h2 id="qiandao"><a href="#qiandao" class="headerlink" title="qiandao"></a>qiandao</h2><p>呃我也忘了这道题的原名叫什么了</p>
+<p>反正我给这道题的文件夹的命名是签到</p>
+<h1 id="qiandao-stackception-VM-Challenge"><a href="#qiandao-stackception-VM-Challenge" class="headerlink" title="qiandao - stackception VM Challenge"></a>qiandao - stackception VM Challenge</h1><h2 id="题目概述"><a href="#题目概述" class="headerlink" title="题目概述"></a>题目概述</h2><p><code>stackception-1</code> 是一个<strong>基于栈的自定义虚拟机 (VM) 逆向&#x2F;PWN 挑战</strong>。题目实现了简单的字节码解释器，并提供一个汇编器 <code>stackception-asm</code> 将汇编代码编译为字节码。</p>
+<hr>
+<h2 id="文件结构"><a href="#文件结构" class="headerlink" title="文件结构"></a>文件结构</h2><table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>stackception-1</code></td>
+<td><strong>VM 解释器</strong>（x86-64 ELF），执行 <code>.bin</code> 字节码文件</td>
+</tr>
+<tr>
+<td><code>stackception-asm</code></td>
+<td><strong>汇编器</strong>，将 <code>.asm</code> 汇编代码编译为 <code>.bin</code> 字节码</td>
+</tr>
+<tr>
+<td><code>chall.py</code></td>
+<td>题目交互脚本（启动 challenge）</td>
+</tr>
+<tr>
+<td><code>1.asm</code> &#x2F; <code>1.py</code> &#x2F; <code>1.bin</code></td>
+<td>示例 challenge 1：栈运算（push + add + write）</td>
+</tr>
+<tr>
+<td><code>2.asm</code> &#x2F; <code>2.py</code> &#x2F; <code>2.bin</code></td>
+<td>示例 challenge 2：read + push + write</td>
+</tr>
+<tr>
+<td><code>ld-linux-x86-64.so.2</code></td>
+<td>动态链接器（可能是特定版本）</td>
+</tr>
+<tr>
+<td><code>libc.so.6</code></td>
+<td>题目提供的 libc（其中包含 flag）</td>
+</tr>
+<tr>
+<td><code>stackception-1.i64</code></td>
+<td>IDA&#x2F;Ghidra 数据库文件</td>
+</tr>
+<tr>
+<td><code>stackception-asm.i64</code></td>
+<td>汇编器的 IDA&#x2F;Ghidra 数据库文件</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="安全防护-Mitigations"><a href="#安全防护-Mitigations" class="headerlink" title="安全防护 (Mitigations)"></a>安全防护 (Mitigations)</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Arch:     amd64-64-little</span><br><span class="line">RELRO:    Partial RELRO</span><br><span class="line">Stack:    Canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      PIE enabled</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>PIE</strong>: 地址随机化</li>
+<li><strong>NX</strong>: 栈不可执行</li>
+<li><strong>Stack Canary</strong>: 栈溢出保护</li>
+<li><strong>Partial RELRO</strong>: GOT 表部分可写</li>
+</ul>
+<hr>
+<h2 id="VM-架构详解"><a href="#VM-架构详解" class="headerlink" title="VM 架构详解"></a>VM 架构详解</h2><h3 id="内存布局"><a href="#内存布局" class="headerlink" title="内存布局"></a>内存布局</h3><p>VM 在栈帧上分配三个核心区域：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">高地址</span><br><span class="line">┌──────────────────────┐</span><br><span class="line">│   return address     │  rbp + 8</span><br><span class="line">├──────────────────────┤</span><br><span class="line">│   saved rbp          │  rbp</span><br><span class="line">├──────────────────────┤</span><br><span class="line">│   stack canary       │  rbp - 0x30</span><br><span class="line">├──────────────────────┤</span><br><span class="line">│   字节码缓冲区        │  rbp - 0x2030  (8192 bytes = 1024 条指令)</span><br><span class="line">│   (bytecode)         │</span><br><span class="line">├──────────────────────┤</span><br><span class="line">│   数据栈             │  rbp - 0x2830  (2048 bytes = 512 个元素)</span><br><span class="line">│   (data stack)       │</span><br><span class="line">├──────────────────────┤</span><br><span class="line">│   调用栈             │  rbp - 0x3030  (2048 bytes = 512 个元素)</span><br><span class="line">│   (call stack)       │</span><br><span class="line">└──────────────────────┘</span><br><span class="line">低地址</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>字节码缓冲区</strong>: 从文件读入，最多 8192 字节（1024 条指令），每条指令 8 字节</li>
+<li><strong>PC (r14d)</strong>: 程序计数器，索引字节码中的指令，取值范围 <code>[0, 1023]</code></li>
+<li><strong>数据栈 (r13d)</strong>: 通用操作数栈，512 个 32-bit 元素，向<strong>高地址</strong>增长</li>
+<li><strong>调用栈 (r12d)</strong>: 保存调用返回地址，512 个 32-bit 元素</li>
+</ul>
+<h3 id="指令格式"><a href="#指令格式" class="headerlink" title="指令格式"></a>指令格式</h3><p>每条指令固定 <strong>8 字节</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>偏移</th>
+<th>大小</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0 - 3</td>
+<td>4 bytes (int32)</td>
+<td><strong>操作码 (opcode)</strong></td>
+</tr>
+<tr>
+<td>4 - 7</td>
+<td>4 bytes (int32)</td>
+<td><strong>立即数 (immediate)</strong></td>
+</tr>
+</tbody></table>
+<h3 id="指令集-Opcode-Table"><a href="#指令集-Opcode-Table" class="headerlink" title="指令集 (Opcode Table)"></a>指令集 (Opcode Table)</h3><table>
+<thead>
+<tr>
+<th>Opcode</th>
+<th>助记符</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>0</code></td>
+<td><code>ADD</code></td>
+<td>弹出栈顶两个值，相加后压回栈顶</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td><code>MUL</code></td>
+<td>弹出栈顶两个值，相乘后压回栈顶</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td><code>PUSH imm</code></td>
+<td>将立即数 <code>imm</code> 压入数据栈</td>
+</tr>
+<tr>
+<td><code>3</code></td>
+<td><code>POP</code></td>
+<td>弹出数据栈栈顶（丢弃）</td>
+</tr>
+<tr>
+<td><code>4</code></td>
+<td><code>DUP</code></td>
+<td>复制数据栈栈顶元素</td>
+</tr>
+<tr>
+<td><code>5</code></td>
+<td><code>JMP_INDIRECT</code></td>
+<td>弹出数据栈值作为地址跳转（间接跳转）</td>
+</tr>
+<tr>
+<td><code>6</code></td>
+<td><code>CALL</code></td>
+<td>弹出目标地址，压入当前 PC 到调用栈，跳转</td>
+</tr>
+<tr>
+<td><code>7</code></td>
+<td><code>RET</code></td>
+<td>从调用栈弹出地址，恢复 PC</td>
+</tr>
+<tr>
+<td><code>8</code></td>
+<td><code>READ</code></td>
+<td>从 stdin 读取 4 字节整数，压入数据栈</td>
+</tr>
+<tr>
+<td><code>9</code></td>
+<td><code>WRITE</code></td>
+<td>弹出数据栈栈顶值，以 4 字节整数写入 stdout</td>
+</tr>
+<tr>
+<td><code>10</code></td>
+<td><code>EXIT</code></td>
+<td>退出程序</td>
+</tr>
+<tr>
+<td><code>11</code></td>
+<td><code>FLAG</code></td>
+<td>读取并打印 <code>/app/flag.txt</code></td>
+</tr>
+</tbody></table>
+<h3 id="汇编器支持的助记符"><a href="#汇编器支持的助记符" class="headerlink" title="汇编器支持的助记符"></a>汇编器支持的助记符</h3><p>汇编器识别以下助记符（与 VM opcode 的映射）：</p>
+<ul>
+<li><code>push &lt;val&gt;</code> — 压入立即数</li>
+<li><code>read</code> — 从 stdin 读取</li>
+<li><code>write</code> — 写入 stdout</li>
+<li><code>call</code> — 调用</li>
+<li><code>exit</code> — 退出</li>
+</ul>
+<h3 id="执行流程"><a href="#执行流程" class="headerlink" title="执行流程"></a>执行流程</h3><ol>
+<li>从命令行参数获取 <code>.bin</code> 文件路径</li>
+<li>初始化 stdin&#x2F;stdout&#x2F;stderr（关闭缓冲）</li>
+<li>将字节码文件读入字节码缓冲区（最多 8192 字节）</li>
+<li>进入主循环：取指 → 解码(opcode 0~11) → 跳转执行 → 递增 PC → 继续</li>
+<li>PC 超出范围 (≥1024) 时报错退出</li>
+</ol>
+<hr>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="漏洞-1-PUSH-无栈溢出检查"><a href="#漏洞-1-PUSH-无栈溢出检查" class="headerlink" title="漏洞 1: PUSH 无栈溢出检查"></a>漏洞 1: PUSH 无栈溢出检查</h3><p><strong><code>PUSH</code> 指令（opcode 2）不会检查数据栈是否已满</strong>，而 <code>DUP</code>（opcode 4）会检查。</p>
+<p>数据栈从 <code>rbp - 0x2830</code> 向高地址增长，每 push 一次写入 4 字节。栈空间仅 2048 字节（512 个元素），但 <code>PUSH</code> 可以无限次执行：</p>
+<ul>
+<li>Push 512 次 → 到达字节码缓冲区起点（<code>rbp - 0x2030</code>）</li>
+<li>Push 1024 次 (2560) → 覆盖字节码缓冲区全部</li>
+<li>Push 更多次 → 覆盖 stack canary、saved rbp、return address</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">数据栈溢出路径：</span><br><span class="line">  rbp-0x2830 ──────&gt; rbp-0x2030 ──────&gt; rbp-0x30 ──&gt; rbp ──&gt; rbp+8</span><br><span class="line">  (数据栈)            (字节码)            (canary)     (rbp)   (ret addr)</span><br><span class="line">  0~511 pushes       512~2559 pushes    2560~2567    2568    2570~2571</span><br></pre></td></tr></table></figure>
+
+<h3 id="漏洞-2-字节码自修改能力"><a href="#漏洞-2-字节码自修改能力" class="headerlink" title="漏洞 2: 字节码自修改能力"></a>漏洞 2: 字节码自修改能力</h3><p>由于数据栈紧邻字节码缓冲区（低地址侧），且在字节码执行过程中可以通过 PUSH 覆盖字节码区域，这提供了<strong>自修改代码 (self-modifying code)</strong> 的能力。</p>
+<h3 id="漏洞-3-FLAG-指令直接读取-flag"><a href="#漏洞-3-FLAG-指令直接读取-flag" class="headerlink" title="漏洞 3: FLAG 指令直接读取 flag"></a>漏洞 3: FLAG 指令直接读取 flag</h3><p>Opcode 11 会直接打开 <code>/app/flag.txt</code> 并打印内容，无需任何地址泄漏或 ROP 链。</p>
+<hr>
+<h2 id="利用思路"><a href="#利用思路" class="headerlink" title="利用思路"></a>利用思路</h2><h3 id="方案-A-直接执行-FLAG-指令"><a href="#方案-A-直接执行-FLAG-指令" class="headerlink" title="方案 A: 直接执行 FLAG 指令"></a>方案 A: 直接执行 FLAG 指令</h3><p>如果字节码可以包含 opcode 11，直接执行即可打印 flag：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">push 0    ; opcode 11 的编码 = 11 &lt;&lt; 32 | 0</span><br><span class="line">; 但汇编器不支持 FLAG 助记符，需要手动构造字节码</span><br></pre></td></tr></table></figure>
+
+<p>解法：手动写入包含 opcode 11 的字节码文件，或通过 PUSH 溢出覆盖字节码区域写入 opcode 11。</p>
+<h3 id="方案-B-数据栈溢出-ROP"><a href="#方案-B-数据栈溢出-ROP" class="headerlink" title="方案 B: 数据栈溢出 + ROP"></a>方案 B: 数据栈溢出 + ROP</h3><ol>
+<li>利用 PUSH 无限溢出的漏洞，用精心构造的值覆盖 canary、saved rbp 和 return address</li>
+<li>需要先泄漏 canary（可能通过 READ&#x2F;WRITE 结合栈越界读取）</li>
+<li>覆盖 return address 为 one_gadget 或 system(“&#x2F;bin&#x2F;sh”) ROP 链</li>
+</ol>
+<h3 id="方案-C-栈溢出-覆盖字节码执行-FLAG"><a href="#方案-C-栈溢出-覆盖字节码执行-FLAG" class="headerlink" title="方案 C: 栈溢出 + 覆盖字节码执行 FLAG"></a>方案 C: 栈溢出 + 覆盖字节码执行 FLAG</h3><ol>
+<li>Push 足够多次溢出到字节码区域</li>
+<li>覆盖字节码为 opcode 11 (FLAG)</li>
+<li>利用 JMP_INDIRECT 或 CALL 跳转到被修改的字节码位置</li>
+</ol>
+<hr>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://gminge.github.io">gminge</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://gminge.github.io/2026/07/17/Lake-ctf/">https://gminge.github.io/2026/07/17/Lake-ctf/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://gminge.github.io" target="_blank">TATA</a>！</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/img/head/1.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width no-desc" href="/2026/07/17/pwn-php/" title="pwn_php"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">pwn_php</div></div></div></a></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="giscus-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/head/1.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">gminge</div><div class="author-info-description">GmG</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">24</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/gminge"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">求ai托管人生教程</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#qiandao"><span class="toc-number">1.</span> <span class="toc-text">qiandao</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#qiandao-stackception-VM-Challenge"><span class="toc-number">2.</span> <span class="toc-text">qiandao - stackception VM Challenge</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E6%A6%82%E8%BF%B0"><span class="toc-number">2.1.</span> <span class="toc-text">题目概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="toc-number">2.2.</span> <span class="toc-text">文件结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4-Mitigations"><span class="toc-number">2.3.</span> <span class="toc-text">安全防护 (Mitigations)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VM-%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3"><span class="toc-number">2.4.</span> <span class="toc-text">VM 架构详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80"><span class="toc-number">2.4.1.</span> <span class="toc-text">内存布局</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%87%E4%BB%A4%E6%A0%BC%E5%BC%8F"><span class="toc-number">2.4.2.</span> <span class="toc-text">指令格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%87%E4%BB%A4%E9%9B%86-Opcode-Table"><span class="toc-number">2.4.3.</span> <span class="toc-text">指令集 (Opcode Table)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B1%87%E7%BC%96%E5%99%A8%E6%94%AF%E6%8C%81%E7%9A%84%E5%8A%A9%E8%AE%B0%E7%AC%A6"><span class="toc-number">2.4.4.</span> <span class="toc-text">汇编器支持的助记符</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-number">2.4.5.</span> <span class="toc-text">执行流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">2.5.</span> <span class="toc-text">漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E-1-PUSH-%E6%97%A0%E6%A0%88%E6%BA%A2%E5%87%BA%E6%A3%80%E6%9F%A5"><span class="toc-number">2.5.1.</span> <span class="toc-text">漏洞 1: PUSH 无栈溢出检查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E-2-%E5%AD%97%E8%8A%82%E7%A0%81%E8%87%AA%E4%BF%AE%E6%94%B9%E8%83%BD%E5%8A%9B"><span class="toc-number">2.5.2.</span> <span class="toc-text">漏洞 2: 字节码自修改能力</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E-3-FLAG-%E6%8C%87%E4%BB%A4%E7%9B%B4%E6%8E%A5%E8%AF%BB%E5%8F%96-flag"><span class="toc-number">2.5.3.</span> <span class="toc-text">漏洞 3: FLAG 指令直接读取 flag</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%80%9D%E8%B7%AF"><span class="toc-number">2.6.</span> <span class="toc-text">利用思路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%A1%88-A-%E7%9B%B4%E6%8E%A5%E6%89%A7%E8%A1%8C-FLAG-%E6%8C%87%E4%BB%A4"><span class="toc-number">2.6.1.</span> <span class="toc-text">方案 A: 直接执行 FLAG 指令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%A1%88-B-%E6%95%B0%E6%8D%AE%E6%A0%88%E6%BA%A2%E5%87%BA-ROP"><span class="toc-number">2.6.2.</span> <span class="toc-text">方案 B: 数据栈溢出 + ROP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%A1%88-C-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A6%86%E7%9B%96%E5%AD%97%E8%8A%82%E7%A0%81%E6%89%A7%E8%A1%8C-FLAG"><span class="toc-number">2.6.3.</span> <span class="toc-text">方案 C: 栈溢出 + 覆盖字节码执行 FLAG</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/07/17/Lake-ctf/" title="Lake_ctf">Lake_ctf</a><time datetime="2026-07-17T09:24:03.000Z" title="发表于 2026-07-17 17:24:03">2026-07-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/07/17/pwn-php/" title="pwn_php">pwn_php</a><time datetime="2026-07-17T08:46:43.000Z" title="发表于 2026-07-17 16:46:43">2026-07-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/07/16/2026-7-16/" title="2026716">2026716</a><time datetime="2026-07-16T10:07:38.000Z" title="发表于 2026-07-16 18:07:38">2026-07-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/04/28/b01lersctf/" title="b01lersctf">b01lersctf</a><time datetime="2026-04-28T15:36:58.000Z" title="发表于 2026-04-28 23:36:58">2026-04-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/03/29/polarisctf/" title="polarisctf">polarisctf</a><time datetime="2026-03-29T03:19:54.000Z" title="发表于 2026-03-29 11:19:54">2026-03-29</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By gminge</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const getGiscusTheme = theme => theme === 'dark' ? 'dark' : 'light'
+
+  const createScriptElement = config => {
+    const ele = document.createElement('script')
+    Object.entries(config).forEach(([key, value]) => {
+      ele.setAttribute(key, value)
+    })
+    return ele
+  }
+
+  const loadGiscus = (el = document, key) => {
+    const mappingConfig = isShuoshuo
+      ? { 'data-mapping': 'specific', 'data-term': key }
+      : { 'data-mapping': (option && option['data-mapping']) || 'pathname' }
+
+    const giscusConfig = {
+      src: 'https://giscus.app/client.js',
+      'data-repo': 'gminge/gminge.github.io',
+      'data-repo-id': 'R_kgDOQoWC2w',
+      'data-category-id': 'DIC_kwDOQoWC284C3NkI',
+      'data-theme': getGiscusTheme(document.documentElement.getAttribute('data-theme')),
+      'data-reactions-enabled': '1',
+      crossorigin: 'anonymous',
+      async: true,
+      ...option,
+      ...mappingConfig
+    }
+
+    const scriptElement = createScriptElement(giscusConfig)
+
+    el.querySelector('#giscus-wrap').appendChild(scriptElement)
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyGiscus = () => {
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const changeGiscusTheme = theme => {
+    const iframe = document.querySelector('#giscus-wrap iframe')
+    if (iframe) {
+      const message = {
+        giscus: {
+          setConfig: {
+            theme: getGiscusTheme(theme)
+          }
+        }
+      }
+      iframe.contentWindow.postMessage(message, 'https://giscus.app')
+    }
+  }
+
+  btf.addGlobalFn('themeChange', changeGiscusTheme, 'giscus')
+
+  if (isShuoshuo) {
+    'Giscus' === 'Giscus'
+      ? window.shuoshuoComment = { loadComment: loadGiscus }
+      : window.loadOtherComment = loadGiscus
+    return
+  }
+
+  if ('Giscus' === 'Giscus' || !false) {
+    if (false) btf.loadComment(document.getElementById('giscus-wrap'), loadGiscus)
+    else loadGiscus()
+  } else {
+    window.loadOtherComment = loadGiscus
+  }
+})()</script></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
